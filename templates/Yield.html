@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block title %}Yield Prediction{% endblock %}
+{% block content %}
+
+<section class="page-header page-header-blue">
+  <div class="container-fluid px-4 py-5">
+    <div class="row align-items-center">
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb breadcrumb-white mb-2">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item active">Yield Prediction</li>
+          </ol>
+        </nav>
+        <h1 class="page-title text-white"><i class="bi bi-graph-up-arrow me-2"></i>Rice Yield Prediction</h1>
+        <p class="page-subtitle text-white-50">Enter agronomic parameters to predict your crop yield in tons/hectare</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container-fluid px-4">
+    <div class="row g-4">
+
+      <!-- Form Panel -->
+      <div class="col-xl-7">
+        <div class="panel-card">
+          <div class="panel-header">
+            <i class="bi bi-sliders panel-icon text-primary"></i>
+            <h4 class="panel-title">Field Parameters</h4>
+          </div>
+          <form method="POST" id="yieldForm">
+            {% if error %}
+            <div class="alert alert-danger d-flex align-items-center gap-2 mb-4">
+              <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Climate Parameters -->
+            <div class="param-section">
+              <div class="param-section-header">
+                <i class="bi bi-cloud-sun-fill text-warning me-2"></i>Climate Parameters
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Rainfall (mm) <span class="required">*</span></label>
+                  <div class="input-group-custom">
+                    <i class="bi bi-cloud-rain-fill input-icon text-info"></i>
+                    <input type="number" class="form-control-custom" name="rainfall_mm" step="0.1" min="0" max="5000"
+                           value="{{ form_data.get('rainfall_mm', 1350) }}" required placeholder="e.g. 1350"/>
+                    <span class="input-unit">mm</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Avg Temperature (°C) <span class="required">*</span></label>
+                  <div class="input-group-custom">
+                    <i class="bi bi-thermometer-half input-icon text-danger"></i>
+                    <input type="number" class="form-control-custom" name="avg_temp_c" step="0.1" min="0" max="50"
+                           value="{{ form_data.get('avg_temp_c', 28) }}" required placeholder="e.g. 28"/>
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Min Temperature (°C) <span class="required">*</span></label>
+                  <div class="input-group-custom">
+                    <i class="bi bi-thermometer-low input-icon text-primary"></i>
+                    <input type="number" class="form-control-custom" name="min_temp_c" step="0.1" min="0" max="40"
+                           value="{{ form_data.get('min_temp_c', 22) }}" required placeholder="e.g. 22"/>
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Max Temperature (°C) <span class="required">*</span></label>
+                  <div class="input-group-custom">
+                    <i class="bi bi-thermometer-high input-icon text-danger"></i>
+                    <input type="number" class="form-control-custom" name="max_temp_c" step="0.1" min="0" max="55"
+                           value="{{ form_data.get('max_temp_c', 36) }}" required placeholder="e.g. 36"/>
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Soil Parameters -->
+            <div class="param-section">
+              <div class="param-section-header">
+                <i class="bi bi-globe-asia-australia text-success me-2"></i>Soil & Nutrient Parameters
+              </div>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label fw-600">Soil pH <span class="required">*</span></label>
+                  <div class="input-group-custom">
+                    <i class="bi bi-flower1 input-icon text-success"></i>
+                    <input type="number" class="form-control-custom" name="soil_ph" step="0.1" min="0" max="14"
+                           value="{{ form_data.get('soil_ph', 6.7) }}" required placeholder="e.g. 6.7"/>
+                    <span class="input-unit">pH</span>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-600">Nitrogen (kg/ha) <span class="required">*</span></label>
+                  <div class="input-group-custom">
+                    <i class="bi bi-circle-fill input-icon" style="color:#6f42c1"></i>
+                    <input type="number" class="form-control-custom" name="nitrogen_kg_ha" step="0.1" min="0"
+                           value="{{ form_data.get('nitrogen_kg_ha', 120) }}" required placeholder="e.g. 120"/>
+                    <span class="input-unit">kg/ha</span>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-600">Phosphorus (kg/ha) <span class="required">*</span></label>
+                  <div class="input-group-custom">
+                    <i class="bi bi-circle-fill input-icon text-warning"></i>
+                    <input type="number" class="form-control-custom" name="phosphorus_kg_ha" step="0.1" min="0"
+                           value="{{ form_data.get('phosphorus_kg_ha', 55) }}" required placeholder="e.g. 55"/>
+                    <span class="input-unit">kg/ha</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Potassium (kg/ha) <span class="required">*</span></label>
+                  <div class="input-group-custom">
+                    <i class="bi bi-circle-fill input-icon text-danger"></i>
+                    <input type="number" class="form-control-custom" name="potassium_kg_ha" step="0.1" min="0"
+                           value="{{ form_data.get('potassium_kg_ha', 70) }}" required placeholder="e.g. 70"/>
+                    <span class="input-unit">kg/ha</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Fertilizer (kg/ha) <span class="required">*</span></label>
+                  <div class="input-group-custom">
+                    <i class="bi bi-bag-fill input-icon text-success"></i>
+                    <input type="number" class="form-control-custom" name="fertilizer_kg_ha" step="0.1" min="0"
+                           value="{{ form_data.get('fertilizer_kg_ha', 230) }}" required placeholder="e.g. 230"/>
+                    <span class="input-unit">kg/ha</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Categorical Parameters -->
+            <div class="param-section">
+              <div class="param-section-header">
+                <i class="bi bi-tags-fill text-info me-2"></i>Farming Parameters
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Irrigation Type <span class="required">*</span></label>
+                  <select class="form-select-custom" name="irrigation_type" required>
+                    {% for opt in ['Canal', 'Borewell', 'Rainfed'] %}
+                    <option value="{{ opt }}" {% if form_data.get('irrigation_type', 'Canal') == opt %}selected{% endif %}>
+                      {{ opt }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Season <span class="required">*</span></label>
+                  <select class="form-select-custom" name="season" required>
+                    {% for opt in ['Kharif', 'Rabi', 'Summer'] %}
+                    <option value="{{ opt }}" {% if form_data.get('season', 'Kharif') == opt %}selected{% endif %}>
+                      {{ opt }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Rice Variety <span class="required">*</span></label>
+                  <select class="form-select-custom" name="rice_variety" required>
+                    {% for opt in ['IR64', 'BPT5204', 'Ponni', 'ADT43'] %}
+                    <option value="{{ opt }}" {% if form_data.get('rice_variety', 'IR64') == opt %}selected{% endif %}>
+                      {{ opt }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-600">Region <span class="required">*</span></label>
+                  <select class="form-select-custom" name="region" required>
+                    {% for opt in ['Tamil Nadu', 'Andhra Pradesh', 'Karnataka', 'Kerala'] %}
+                    <option value="{{ opt }}" {% if form_data.get('region', 'Tamil Nadu') == opt %}selected{% endif %}>
+                      {{ opt }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-yield w-100 mt-2" id="predictBtn">
+              <i class="bi bi-lightning-charge-fill me-2"></i>Predict Yield
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="col-xl-5">
+        {% if result %}
+        <div class="yield-result animate-fade-in">
+          <!-- Main Yield Display -->
+          <div class="yield-hero">
+            <div class="yield-icon-big">🌾</div>
+            <div class="yield-label">Predicted Yield</div>
+            <div class="yield-value-big">
+              <span class="yield-number">{{ result.yield }}</span>
+              <span class="yield-unit">tons/ha</span>
+            </div>
+            <div class="yield-rating-badge badge-{{ result.rating.color }}">
+              {{ result.rating.icon }} {{ result.rating.label }}
+            </div>
+          </div>
+
+          <!-- Stars -->
+          <div class="text-center py-3 border-bottom">
+            {% for i in range(5) %}
+              <i class="bi bi-star-fill {% if i < result.rating.stars %}text-warning{% else %}text-muted{% endif %} fs-5"></i>
+            {% endfor %}
+            <p class="text-muted small mt-1 mb-0">{{ result.rating.label }} yield performance</p>
+          </div>
+
+          <!-- Summary -->
+          <div class="yield-summary p-4">
+            <h6 class="fw-700 mb-3"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Prediction Summary</h6>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-icon">🌧️</span>
+                <div>
+                  <div class="summary-key">Rainfall</div>
+                  <div class="summary-val">{{ result.form_data.rainfall_mm }} mm</div>
+                </div>
+              </div>
+              <div class="summary-item">
+                <span class="summary-icon">🌡️</span>
+                <div>
+                  <div class="summary-key">Avg Temp</div>
+                  <div class="summary-val">{{ result.form_data.avg_temp_c }}°C</div>
+                </div>
+              </div>
+              <div class="summary-item">
+                <span class="summary-icon">🌱</span>
+                <div>
+                  <div class="summary-key">Variety</div>
+                  <div class="summary-val">{{ result.form_data.rice_variety }}</div>
+                </div>
+              </div>
+              <div class="summary-item">
+                <span class="summary-icon">📅</span>
+                <div>
+                  <div class="summary-key">Season</div>
+                  <div class="summary-val">{{ result.form_data.season }}</div>
+                </div>
+              </div>
+              <div class="summary-item">
+                <span class="summary-icon">💧</span>
+                <div>
+                  <div class="summary-key">Irrigation</div>
+                  <div class="summary-val">{{ result.form_data.irrigation_type }}</div>
+                </div>
+              </div>
+              <div class="summary-item">
+                <span class="summary-icon">📍</span>
+                <div>
+                  <div class="summary-key">Region</div>
+                  <div class="summary-val">{{ result.form_data.region }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="p-4 pt-0 d-flex gap-2 flex-wrap">
+            <a href="{{ url_for('yield_pred') }}" class="btn btn-outline-primary btn-sm">
+              <i class="bi bi-arrow-repeat me-1"></i>Predict Again
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-bar-chart-fill me-1"></i>Dashboard
+            </a>
+          </div>
+        </div>
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state-card">
+          <div class="empty-state-icon">📊</div>
+          <h4 class="empty-state-title">Ready to Predict</h4>
+          <p class="empty-state-sub">Fill in the agricultural parameters and our Random Forest model will predict your rice yield accurately.</p>
+          <div class="sample-tip">
+            <h6 class="mb-2 fw-700">🧪 Sample Values (Tamil Nadu, Kharif)</h6>
+            <div class="sample-grid">
+              <span>Rainfall: 1350mm</span>
+              <span>Avg Temp: 28°C</span>
+              <span>Soil pH: 6.7</span>
+              <span>Nitrogen: 120 kg/ha</span>
+            </div>
+            <button class="btn btn-sm btn-outline-success mt-2" onclick="fillSample()">
+              <i class="bi bi-magic me-1"></i>Load Sample Values
+            </button>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('yieldForm').addEventListener('submit', function() {
+  const btn = document.getElementById('predictBtn');
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Predicting...';
+  btn.disabled = true;
+});
+
+function fillSample() {
+  const vals = {
+    rainfall_mm: 1350, avg_temp_c: 28, min_temp_c: 22, max_temp_c: 36,
+    soil_ph: 6.7, nitrogen_kg_ha: 120, phosphorus_kg_ha: 55,
+    potassium_kg_ha: 70, fertilizer_kg_ha: 230
+  };
+  for (const [k, v] of Object.entries(vals)) {
+    const el = document.querySelector(`[name="${k}"]`);
+    if (el) el.value = v;
+  }
+  document.querySelector('[name="irrigation_type"]').value = 'Canal';
+  document.querySelector('[name="season"]').value = 'Kharif';
+  document.querySelector('[name="rice_variety"]').value = 'IR64';
+  document.querySelector('[name="region"]').value = 'Tamil Nadu';
+}
+</script>
+{% endblock %}

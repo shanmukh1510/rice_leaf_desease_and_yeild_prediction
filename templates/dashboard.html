@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<section class="page-header page-header-dark">
+  <div class="container-fluid px-4 py-5">
+    <div class="row align-items-center">
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb breadcrumb-white mb-2">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item active">Dashboard</li>
+          </ol>
+        </nav>
+        <h1 class="page-title text-white"><i class="bi bi-bar-chart-fill me-2"></i>Analytics Dashboard</h1>
+        <p class="page-subtitle text-white-50">Real-time insights from all AI predictions</p>
+      </div>
+      <div class="col-auto">
+        <a href="{{ url_for('api_stats') }}" target="_blank" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-code-slash me-1"></i>API Data
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container-fluid px-4">
+
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-5">
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-green">
+          <div class="kpi-icon"><i class="bi bi-search-heart-fill"></i></div>
+          <div class="kpi-value">{{ total_disease }}</div>
+          <div class="kpi-label">Disease Scans</div>
+          <div class="kpi-trend"><i class="bi bi-arrow-up-right"></i> Total</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-icon"><i class="bi bi-graph-up-arrow"></i></div>
+          <div class="kpi-value">{{ total_yield }}</div>
+          <div class="kpi-label">Yield Predictions</div>
+          <div class="kpi-trend"><i class="bi bi-arrow-up-right"></i> Total</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-orange">
+          <div class="kpi-icon"><i class="bi bi-speedometer2"></i></div>
+          <div class="kpi-value">{{ avg_yield }}</div>
+          <div class="kpi-label">Avg Yield (t/ha)</div>
+          <div class="kpi-trend"><i class="bi bi-graph-up"></i> Average</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="kpi-card kpi-purple">
+          <div class="kpi-icon"><i class="bi bi-patch-check-fill"></i></div>
+          <div class="kpi-value">{{ avg_conf }}%</div>
+          <div class="kpi-label">Avg Confidence</div>
+          <div class="kpi-trend"><i class="bi bi-shield-check"></i> Accuracy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row g-4 mb-4">
+      <!-- Pie Chart - Disease Distribution -->
+      <div class="col-lg-5">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h5 class="chart-title">Disease Distribution</h5>
+              <p class="chart-sub">All detected rice diseases</p>
+            </div>
+            <div class="chart-badge">Pie</div>
+          </div>
+          <div class="chart-body">
+            {% if disease_dist %}
+            <div class="chart-container" style="height:280px;">
+              <canvas id="diseaseChart"></canvas>
+            </div>
+            {% else %}
+            <div class="chart-empty">
+              <i class="bi bi-pie-chart display-4 text-muted"></i>
+              <p class="text-muted mt-2">No disease data yet.<br>Upload leaf images to see distribution.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Line Chart - Yield History -->
+      <div class="col-lg-7">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h5 class="chart-title">Yield Prediction History</h5>
+              <p class="chart-sub">Recent yield predictions (tons/ha)</p>
+            </div>
+            <div class="chart-badge chart-badge-blue">Line</div>
+          </div>
+          <div class="chart-body">
+            {% if yield_history %}
+            <div class="chart-container" style="height:280px;">
+              <canvas id="yieldChart"></canvas>
+            </div>
+            {% else %}
+            <div class="chart-empty">
+              <i class="bi bi-graph-up display-4 text-muted"></i>
+              <p class="text-muted mt-2">No yield predictions yet.<br>Make predictions to see trends.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row g-4">
+      <!-- Bar Chart - Daily Counts -->
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h5 class="chart-title">Daily Predictions Count</h5>
+              <p class="chart-sub">Disease detections per day</p>
+            </div>
+            <div class="chart-badge chart-badge-orange">Bar</div>
+          </div>
+          <div class="chart-body">
+            {% if daily_disease %}
+            <div class="chart-container" style="height:250px;">
+              <canvas id="dailyDiseaseChart"></canvas>
+            </div>
+            {% else %}
+            <div class="chart-empty">
+              <i class="bi bi-bar-chart display-4 text-muted"></i>
+              <p class="text-muted mt-2">No daily data available yet.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar Chart - Daily Yield -->
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h5 class="chart-title">Daily Yield Predictions</h5>
+              <p class="chart-sub">Number of yield analyses per day</p>
+            </div>
+            <div class="chart-badge chart-badge-purple">Bar</div>
+          </div>
+          <div class="chart-body">
+            {% if daily_yield %}
+            <div class="chart-container" style="height:250px;">
+              <canvas id="dailyYieldChart"></canvas>
+            </div>
+            {% else %}
+            <div class="chart-empty">
+              <i class="bi bi-bar-chart-steps display-4 text-muted"></i>
+              <p class="text-muted mt-2">No daily yield data yet.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+Chart.defaults.font.family = "'Inter', sans-serif";
+
+const COLORS = {
+  green: ['#16a34a','#22c55e','#4ade80','#86efac','#bbf7d0','#dcfce7'],
+  blue: ['#1d4ed8','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe'],
+  orange: '#f97316',
+  purple: '#8b5cf6',
+  red: '#ef4444',
+};
+
+{% if disease_dist %}
+// Pie Chart
+const dLabels = {{ disease_dist.keys()|list|tojson }};
+const dVals = {{ disease_dist.values()|list|tojson }};
+const diseaseColors = ['#ef4444','#f97316','#eab308','#22c55e','#8b5cf6','#06b6d4'];
+new Chart(document.getElementById('diseaseChart'), {
+  type: 'doughnut',
+  data: {
+    labels: dLabels,
+    datasets: [{
+      data: dVals,
+      backgroundColor: diseaseColors,
+      borderWidth: 3,
+      borderColor: '#fff',
+      hoverBorderWidth: 4,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '60%',
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true, pointStyleWidth: 10 }},
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/ctx.dataset.data.reduce((a,b)=>a+b,0)*100)}%)`
+        }
+      }
+    },
+    animation: { animateRotate: true, duration: 1000 }
+  }
+});
+{% endif %}
+
+{% if yield_history %}
+// Line Chart
+const yLabels = {{ yield_history|map(attribute='date_time')|list|tojson }}.map(d => d.slice(0,16));
+const yVals = {{ yield_history|map(attribute='predicted_yield')|list|tojson }};
+const yVarieties = {{ yield_history|map(attribute='rice_variety')|list|tojson }};
+new Chart(document.getElementById('yieldChart'), {
+  type: 'line',
+  data: {
+    labels: yLabels.reverse(),
+    datasets: [{
+      label: 'Predicted Yield (t/ha)',
+      data: yVals.reverse(),
+      borderColor: '#1d4ed8',
+      backgroundColor: 'rgba(29,78,216,0.08)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 6,
+      pointHoverRadius: 9,
+      pointBackgroundColor: '#1d4ed8',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.raw} tons/ha` }}
+    },
+    scales: {
+      y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.05)' }, title: { display: true, text: 'Yield (tons/ha)' }},
+      x: { grid: { display: false }, ticks: { maxRotation: 45, maxTicksLimit: 8 }}
+    },
+    animation: { duration: 1200, easing: 'easeInOutQuart' }
+  }
+});
+{% endif %}
+
+{% if daily_disease %}
+const ddLabels = {{ daily_disease|map(attribute='day')|list|tojson }}.reverse();
+const ddVals = {{ daily_disease|map(attribute='count')|list|tojson }}.reverse();
+new Chart(document.getElementById('dailyDiseaseChart'), {
+  type: 'bar',
+  data: {
+    labels: ddLabels,
+    datasets: [{
+      label: 'Disease Detections',
+      data: ddVals,
+      backgroundColor: 'rgba(22,163,74,0.8)',
+      borderColor: '#16a34a',
+      borderWidth: 2,
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }},
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.05)' }},
+      x: { grid: { display: false }}
+    },
+    animation: { duration: 800 }
+  }
+});
+{% endif %}
+
+{% if daily_yield %}
+const dyLabels = {{ daily_yield|map(attribute='day')|list|tojson }}.reverse();
+const dyVals = {{ daily_yield|map(attribute='count')|list|tojson }}.reverse();
+new Chart(document.getElementById('dailyYieldChart'), {
+  type: 'bar',
+  data: {
+    labels: dyLabels,
+    datasets: [{
+      label: 'Yield Predictions',
+      data: dyVals,
+      backgroundColor: 'rgba(139,92,246,0.8)',
+      borderColor: '#8b5cf6',
+      borderWidth: 2,
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }},
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.05)' }},
+      x: { grid: { display: false }}
+    },
+    animation: { duration: 800 }
+  }
+});
+{% endif %}
+</script>
+{% endblock %}

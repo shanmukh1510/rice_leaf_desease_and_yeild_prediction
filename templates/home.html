@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Rice Farming AI{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <nav class="dashboard-nav">
+        <div class="nav-logo">
+            <span class="logo-icon">🌾</span>
+            <span class="logo-text">RiceAI</span>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}" class="nav-link active">Dashboard</a>
+            <a href="{{ url_for('disease_prediction') }}" class="nav-link">Disease Detection</a>
+            <a href="{{ url_for('yield_prediction') }}" class="nav-link">Yield Prediction</a>
+            <a href="{{ url_for('history') }}" class="nav-link">History</a>
+        </div>
+        <div class="nav-user">
+            <div class="user-avatar">{{ username[0]|upper }}</div>
+            <span class="user-name">{{ username }}</span>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1 class="dashboard-title">Welcome back, {{ username }}!</h1>
+                <p class="dashboard-subtitle">Choose a tool to get started with AI-powered farming insights</p>
+            </div>
+        </div>
+
+        <div class="dashboard-cards">
+            <a href="{{ url_for('disease_prediction') }}" class="dashboard-card card-disease">
+                <div class="card-background"></div>
+                <div class="card-content">
+                    <div class="card-icon-wrapper">
+                        <div class="card-icon">🔬</div>
+                    </div>
+                    <h2 class="card-title">Disease Detection</h2>
+                    <p class="card-description">
+                        Upload rice leaf images to identify diseases instantly using deep learning technology
+                    </p>
+                    <div class="card-features">
+                        <span class="feature-badge">MobileNetV2</span>
+                        <span class="feature-badge">99%+ Accuracy</span>
+                    </div>
+                    <div class="card-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ url_for('yield_prediction') }}" class="dashboard-card card-yield">
+                <div class="card-background"></div>
+                <div class="card-content">
+                    <div class="card-icon-wrapper">
+                        <div class="card-icon">📈</div>
+                    </div>
+                    <h2 class="card-title">Yield Prediction</h2>
+                    <p class="card-description">
+                        Input crop parameters to predict expected yield per hectare using machine learning
+                    </p>
+                    <div class="card-features">
+                        <span class="feature-badge">Random Forest</span>
+                        <span class="feature-badge">R² 0.94</span>
+                    </div>
+                    <div class="card-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ url_for('history') }}" class="dashboard-card card-history">
+                <div class="card-background"></div>
+                <div class="card-content">
+                    <div class="card-icon-wrapper">
+                        <div class="card-icon">📊</div>
+                    </div>
+                    <h2 class="card-title">Prediction History</h2>
+                    <p class="card-description">
+                        View all your past predictions and track trends over time for better decisions
+                    </p>
+                    <div class="card-features">
+                        <span class="feature-badge">Analytics</span>
+                        <span class="feature-badge">Insights</span>
+                    </div>
+                    <div class="card-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="dashboard-info">
+            <div class="info-card">
+                <h3 class="info-title">🎯 How It Works</h3>
+                <div class="info-steps">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Choose a Tool</h4>
+                            <p>Select disease detection or yield prediction</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Input Data</h4>
+                            <p>Upload images or enter crop parameters</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Get Results</h4>
+                            <p>Receive instant AI-powered predictions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

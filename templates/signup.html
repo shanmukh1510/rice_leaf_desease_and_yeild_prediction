@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up – SmartRice AI</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet"/>
+</head>
+<body class="auth-body">
+
+<div class="auth-wrapper">
+  <!-- Left Panel -->
+  <div class="auth-left d-none d-lg-flex">
+    <div class="auth-left-content">
+      <a href="{{ url_for('index') }}" class="auth-logo">
+        <span class="auth-logo-icon">🌾</span>
+        <div>
+          <div class="auth-logo-name">SmartRice</div>
+          <div class="auth-logo-tag">AI Agriculture System</div>
+        </div>
+      </a>
+      <div class="auth-left-hero">
+        <div class="auth-hero-circle">
+          <div class="auth-hero-inner">🌾</div>
+        </div>
+        <div class="auth-orbit o1">🦠</div>
+        <div class="auth-orbit o2">💊</div>
+        <div class="auth-orbit o3">📈</div>
+      </div>
+      <h2 class="auth-left-title">Start Your Smart Farming Journey</h2>
+      <p class="auth-left-sub">Join thousands of farmers using AI to protect their crops and maximize yield.</p>
+      <div class="auth-stats-row">
+        <div class="auth-stat"><span class="auth-stat-val">6</span><span class="auth-stat-label">Disease Types</span></div>
+        <div class="auth-stat"><span class="auth-stat-val">95%+</span><span class="auth-stat-label">Accuracy</span></div>
+        <div class="auth-stat"><span class="auth-stat-val">Free</span><span class="auth-stat-label">Always</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="auth-right auth-right-scroll">
+    <div class="auth-form-wrap">
+      <!-- Mobile Logo -->
+      <div class="d-lg-none text-center mb-4">
+        <a href="{{ url_for('index') }}" class="auth-logo justify-content-center">
+          <span style="font-size:2.5rem;">🌾</span>
+          <span class="auth-logo-name">SmartRice</span>
+        </a>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-card-header">
+          <h2 class="auth-card-title">Create Account</h2>
+          <p class="auth-card-sub">Join SmartRice for free — takes less than a minute</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for cat, msg in messages %}
+            <div class="alert auth-alert alert-{{ cat }} d-flex gap-2 align-items-center">
+              <i class="bi bi-{% if cat == 'success' %}check-circle-fill{% elif cat == 'danger' %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %}"></i>
+              {{ msg }}
+            </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" id="signupForm">
+          <!-- Full Name -->
+          <div class="auth-field">
+            <label class="auth-label">Full Name <span class="auth-required">*</span></label>
+            <div class="auth-input-wrap">
+              <i class="bi bi-person-fill auth-input-icon"></i>
+              <input type="text" class="auth-input" name="full_name"
+                     placeholder="e.g. Rajan Kumar" required autofocus/>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="auth-field">
+            <label class="auth-label">Email Address <span class="auth-required">*</span></label>
+            <div class="auth-input-wrap">
+              <i class="bi bi-envelope-fill auth-input-icon"></i>
+              <input type="email" class="auth-input" name="email"
+                     placeholder="you@example.com" required/>
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div class="auth-field">
+            <label class="auth-label">Username <span class="auth-required">*</span></label>
+            <div class="auth-input-wrap">
+              <i class="bi bi-at auth-input-icon"></i>
+              <input type="text" class="auth-input" name="username" id="usernameInput"
+                     placeholder="e.g. rajan_farmer" minlength="3" required/>
+            </div>
+            <div class="auth-hint" id="usernameHint"></div>
+          </div>
+
+          <!-- Password Row -->
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="auth-field mb-0">
+                <label class="auth-label">Password <span class="auth-required">*</span></label>
+                <div class="auth-input-wrap">
+                  <i class="bi bi-lock-fill auth-input-icon"></i>
+                  <input type="password" class="auth-input" name="password" id="signupPassword"
+                         placeholder="Min. 6 characters" minlength="6" required oninput="checkStrength(this.value)"/>
+                  <button type="button" class="auth-eye-btn" onclick="togglePassword('signupPassword', this)">
+                    <i class="bi bi-eye-fill"></i>
+                  </button>
+                </div>
+                <!-- Password strength -->
+                <div class="pw-strength-bar mt-1">
+                  <div class="pw-strength-fill" id="pwStrengthFill"></div>
+                </div>
+                <small class="pw-strength-text" id="pwStrengthText"></small>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="auth-field mb-0">
+                <label class="auth-label">Confirm Password <span class="auth-required">*</span></label>
+                <div class="auth-input-wrap">
+                  <i class="bi bi-lock-check-fill auth-input-icon"></i>
+                  <input type="password" class="auth-input" name="confirm_password" id="confirmPassword"
+                         placeholder="Repeat password" required oninput="checkMatch()"/>
+                  <button type="button" class="auth-eye-btn" onclick="togglePassword('confirmPassword', this)">
+                    <i class="bi bi-eye-fill"></i>
+                  </button>
+                </div>
+                <small class="match-text" id="matchText"></small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optional Fields -->
+          <div class="auth-optional-header mt-4 mb-3">
+            <span>Optional Info</span>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="auth-field mb-0">
+                <label class="auth-label">State / Region</label>
+                <div class="auth-input-wrap">
+                  <i class="bi bi-geo-alt-fill auth-input-icon"></i>
+                  <select class="auth-input auth-select" name="state">
+                    <option value="">Select state...</option>
+                    <option>Tamil Nadu</option>
+                    <option>Andhra Pradesh</option>
+                    <option>Karnataka</option>
+                    <option>Kerala</option>
+                    <option>Maharashtra</option>
+                    <option>Punjab</option>
+                    <option>West Bengal</option>
+                    <option>Uttar Pradesh</option>
+                    <option>Odisha</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="auth-field mb-0">
+                <label class="auth-label">Farm Size</label>
+                <div class="auth-input-wrap">
+                  <i class="bi bi-crop auth-input-icon"></i>
+                  <select class="auth-input auth-select" name="farm_size">
+                    <option value="">Select size...</option>
+                    <option>Less than 1 acre</option>
+                    <option>1–5 acres</option>
+                    <option>5–10 acres</option>
+                    <option>10–50 acres</option>
+                    <option>50+ acres</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Terms -->
+          <div class="mt-4 mb-4">
+            <label class="auth-checkbox-label">
+              <input type="checkbox" class="auth-checkbox" required id="termsCheck"/>
+              <span>I agree to the <a href="#" class="auth-link">Terms of Service</a> and <a href="#" class="auth-link">Privacy Policy</a></span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn auth-submit-btn w-100" id="signupBtn">
+            <i class="bi bi-person-plus-fill me-2"></i>Create My Account
+          </button>
+        </form>
+
+        <p class="text-center mt-4 mb-0 text-muted small">
+          Already have an account?
+          <a href="{{ url_for('login') }}" class="auth-link fw-700">Sign in here</a>
+        </p>
+        <p class="auth-footer-link text-center mt-2">
+          <a href="{{ url_for('index') }}" class="text-muted small">
+            <i class="bi bi-arrow-left me-1"></i>Back to Home
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function togglePassword(id, btn) {
+  const inp = document.getElementById(id);
+  const icon = btn.querySelector('i');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  icon.className = inp.type === 'password' ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill';
+}
+
+function checkStrength(val) {
+  const fill = document.getElementById('pwStrengthFill');
+  const text = document.getElementById('pwStrengthText');
+  let score = 0;
+  if (val.length >= 6) score++;
+  if (val.length >= 10) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^a-zA-Z0-9]/.test(val)) score++;
+  const levels = [
+    {w:'20%', c:'#ef4444', l:'Very Weak'},
+    {w:'40%', c:'#f97316', l:'Weak'},
+    {w:'60%', c:'#eab308', l:'Fair'},
+    {w:'80%', c:'#22c55e', l:'Strong'},
+    {w:'100%', c:'#16a34a', l:'Very Strong'},
+  ];
+  const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+  fill.style.width = lvl.w;
+  fill.style.background = lvl.c;
+  text.textContent = lvl.l;
+  text.style.color = lvl.c;
+}
+
+function checkMatch() {
+  const pw = document.getElementById('signupPassword').value;
+  const cf = document.getElementById('confirmPassword').value;
+  const el = document.getElementById('matchText');
+  if (cf.length === 0) { el.textContent = ''; return; }
+  if (pw === cf) {
+    el.textContent = '✓ Passwords match';
+    el.style.color = '#16a34a';
+  } else {
+    el.textContent = '✗ Passwords do not match';
+    el.style.color = '#ef4444';
+  }
+}
+
+// Username live check (characters only)
+document.getElementById('usernameInput').addEventListener('input', function() {
+  const val = this.value;
+  const hint = document.getElementById('usernameHint');
+  if (val.length < 3) {
+    hint.textContent = 'Minimum 3 characters';
+    hint.style.color = '#f97316';
+  } else if (/\s/.test(val)) {
+    hint.textContent = 'No spaces allowed';
+    hint.style.color = '#ef4444';
+  } else {
+    hint.textContent = '✓ Username looks good';
+    hint.style.color = '#16a34a';
+  }
+});
+
+document.getElementById('signupForm').addEventListener('submit', function() {
+  const btn = document.getElementById('signupBtn');
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating account...';
+  btn.disabled = true;
+});
+</script>
+</body>
+</html>

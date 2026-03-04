@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="hero-section">
+  <div class="hero-particles" id="particles"></div>
+  <div class="container-fluid px-4 py-5 position-relative">
+    <div class="row align-items-center min-vh-hero">
+      <div class="col-lg-7 text-white">
+        <div class="hero-badge mb-3 animate-fade-up">
+          <i class="bi bi-stars me-2"></i>AI-Powered Agriculture Platform
+        </div>
+        <h1 class="hero-title animate-fade-up delay-1">
+          Smart<span class="hero-highlight">Rice</span>
+          <br>AI System
+        </h1>
+        <p class="hero-subtitle animate-fade-up delay-2">
+          Detect rice leaf diseases with Deep Learning & predict crop yield with Machine Learning.
+          Empowering farmers with cutting-edge AI technology.
+        </p>
+        <div class="d-flex flex-wrap gap-3 animate-fade-up delay-3">
+          <a href="{{ url_for('detect') }}" class="btn btn-hero-primary">
+            <i class="bi bi-search-heart me-2"></i>Detect Disease
+          </a>
+          <a href="{{ url_for('yield_pred') }}" class="btn btn-hero-secondary">
+            <i class="bi bi-graph-up-arrow me-2"></i>Predict Yield
+          </a>
+        </div>
+        <!-- Model Status Badges -->
+        <div class="d-flex flex-wrap gap-3 mt-4 animate-fade-up delay-4">
+          <span class="status-badge {% if dl_model_status %}status-ok{% else %}status-off{% endif %}">
+            <i class="bi bi-cpu-fill me-1"></i>
+            Deep Learning: {% if dl_model_status %}Active{% else %}Model Not Found{% endif %}
+          </span>
+          <span class="status-badge {% if ml_model_status %}status-ok{% else %}status-off{% endif %}">
+            <i class="bi bi-diagram-3-fill me-1"></i>
+            ML Model: {% if ml_model_status %}Active{% else %}Model Not Found{% endif %}
+          </span>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-block text-center">
+        <div class="hero-visual animate-float">
+          <div class="hero-circle-outer">
+            <div class="hero-circle-inner">
+              <span class="hero-emoji">🌾</span>
+            </div>
+          </div>
+          <div class="hero-orbit orbit-1"><span>🔬</span></div>
+          <div class="hero-orbit orbit-2"><span>🧪</span></div>
+          <div class="hero-orbit orbit-3"><span>📊</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#f8fffe"/>
+    </svg>
+  </div>
+</section>
+
+<!-- STATS SECTION -->
+<section class="stats-section py-5">
+  <div class="container-fluid px-4">
+    <div class="row g-4 justify-content-center">
+      <div class="col-6 col-md-3">
+        <div class="stat-card text-center animate-slide-up">
+          <div class="stat-icon">🔬</div>
+          <div class="stat-value counter" data-target="{{ disease_count }}">{{ disease_count }}</div>
+          <div class="stat-label">Disease Scans</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card text-center animate-slide-up delay-1">
+          <div class="stat-icon">📊</div>
+          <div class="stat-value counter" data-target="{{ yield_count }}">{{ yield_count }}</div>
+          <div class="stat-label">Yield Predictions</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card text-center animate-slide-up delay-2">
+          <div class="stat-icon">🦠</div>
+          <div class="stat-value">6</div>
+          <div class="stat-label">Disease Classes</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card text-center animate-slide-up delay-3">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value">95%+</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="features-section py-5 bg-light-green">
+  <div class="container-fluid px-4">
+    <div class="text-center mb-5">
+      <span class="section-badge">What We Offer</span>
+      <h2 class="section-title mt-2">Powerful AI Features</h2>
+      <p class="section-sub">Two intelligent systems working together for smarter agriculture</p>
+    </div>
+    <div class="row g-4">
+      <!-- Disease Detection Card -->
+      <div class="col-lg-6">
+        <div class="feature-card feature-card-disease h-100">
+          <div class="feature-header">
+            <div class="feature-icon-wrap disease-icon">
+              <i class="bi bi-search-heart"></i>
+            </div>
+            <div>
+              <h3 class="feature-title">Disease Detection</h3>
+              <span class="feature-badge">Deep Learning CNN</span>
+            </div>
+          </div>
+          <p class="feature-desc">
+            Upload a rice leaf photo and our CNN model instantly identifies 6 types of diseases
+            with confidence scores and detailed treatment recommendations.
+          </p>
+          <div class="disease-chips mb-4">
+            <span class="disease-chip chip-danger">🦠 Bacterial Blight</span>
+            <span class="disease-chip chip-danger">💥 Blast</span>
+            <span class="disease-chip chip-warning">🟤 Brown Spot</span>
+            <span class="disease-chip chip-warning">⬛ Leaf Smut</span>
+            <span class="disease-chip chip-danger">🟡 Tungro</span>
+            <span class="disease-chip chip-success">✅ Healthy</span>
+          </div>
+          <a href="{{ url_for('detect') }}" class="btn btn-feature-primary">
+            <i class="bi bi-upload me-2"></i>Upload Leaf Image
+          </a>
+        </div>
+      </div>
+      <!-- Yield Prediction Card -->
+      <div class="col-lg-6">
+        <div class="feature-card feature-card-yield h-100">
+          <div class="feature-header">
+            <div class="feature-icon-wrap yield-icon">
+              <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div>
+              <h3 class="feature-title">Yield Prediction</h3>
+              <span class="feature-badge feature-badge-blue">Random Forest ML</span>
+            </div>
+          </div>
+          <p class="feature-desc">
+            Input agronomic parameters and get accurate yield predictions in tons/hectare
+            using our trained Random Forest model on 12,000+ data points.
+          </p>
+          <div class="param-grid mb-4">
+            <div class="param-item"><i class="bi bi-cloud-rain"></i> Rainfall</div>
+            <div class="param-item"><i class="bi bi-thermometer"></i> Temperature</div>
+            <div class="param-item"><i class="bi bi-flower1"></i> Soil pH</div>
+            <div class="param-item"><i class="bi bi-droplet-fill"></i> Irrigation</div>
+            <div class="param-item"><i class="bi bi-bag-fill"></i> Fertilizer</div>
+            <div class="param-item"><i class="bi bi-calendar3"></i> Season</div>
+          </div>
+          <a href="{{ url_for('yield_pred') }}" class="btn btn-feature-secondary">
+            <i class="bi bi-calculator me-2"></i>Predict Yield Now
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section py-5">
+  <div class="container-fluid px-4">
+    <div class="text-center mb-5">
+      <span class="section-badge">Simple Process</span>
+      <h2 class="section-title mt-2">How It Works</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4 text-center">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-icon">📸</div>
+          <h5 class="step-title">Upload / Input</h5>
+          <p class="step-desc">Upload a rice leaf image or enter agronomic field parameters</p>
+        </div>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-icon">🤖</div>
+          <h5 class="step-title">AI Analysis</h5>
+          <p class="step-desc">Our deep learning / machine learning models analyze your data instantly</p>
+        </div>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-icon">📋</div>
+          <h5 class="step-title">Get Results</h5>
+          <p class="step-desc">Receive diagnosis, confidence score, treatment advice, or yield forecast</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECENT PREDICTIONS -->
+{% if recent_disease or recent_yield %}
+<section class="recent-section py-5 bg-light-green">
+  <div class="container-fluid px-4">
+    <div class="text-center mb-5">
+      <span class="section-badge">Latest Activity</span>
+      <h2 class="section-title mt-2">Recent Predictions</h2>
+    </div>
+    <div class="row g-4">
+      {% if recent_disease %}
+      <div class="col-lg-6">
+        <div class="recent-card">
+          <h5 class="recent-card-title"><i class="bi bi-search-heart me-2 text-success"></i>Latest Disease Detections</h5>
+          {% for r in recent_disease %}
+          <div class="recent-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="recent-class">{{ r['predicted_class'] }}</span>
+              <span class="confidence-badge">{{ "%.1f"|format(r['confidence']) }}%</span>
+            </div>
+            <small class="text-muted">{{ r['date_time'] }}</small>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      {% if recent_yield %}
+      <div class="col-lg-6">
+        <div class="recent-card">
+          <h5 class="recent-card-title"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Latest Yield Predictions</h5>
+          {% for r in recent_yield %}
+          <div class="recent-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="recent-class">{{ r['rice_variety'] }} – {{ r['region'] }}</span>
+              <span class="yield-badge">{{ r['predicted_yield'] }} t/ha</span>
+            </div>
+            <small class="text-muted">{{ r['season'] }} | {{ r['date_time'] }}</small>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

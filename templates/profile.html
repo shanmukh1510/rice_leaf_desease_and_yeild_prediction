@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+
+<section class="page-header">
+  <div class="container-fluid px-4 py-5">
+    <div class="row align-items-center">
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb breadcrumb-white mb-2">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item active">My Profile</li>
+          </ol>
+        </nav>
+        <h1 class="page-title text-white"><i class="bi bi-person-circle me-2"></i>My Profile</h1>
+        <p class="page-subtitle text-white-50">Manage your account and view your prediction history</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container-fluid px-4">
+    <div class="row g-4">
+
+      <!-- Profile Card -->
+      <div class="col-lg-4">
+        <div class="profile-card text-center">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar">{{ user['full_name'][0].upper() }}</div>
+            <div class="profile-avatar-badge">
+              <i class="bi bi-check-circle-fill text-success"></i>
+            </div>
+          </div>
+          <h3 class="profile-name mt-3">{{ user['full_name'] }}</h3>
+          <p class="profile-username">@{{ user['username'] }}</p>
+          <span class="profile-role-badge">{{ user['role'].title() }}</span>
+          <p class="profile-email mt-3"><i class="bi bi-envelope-fill me-2 text-muted"></i>{{ user['email'] }}</p>
+          {% if user['state'] %}
+          <p class="profile-location"><i class="bi bi-geo-alt-fill me-2 text-muted"></i>{{ user['state'] }}</p>
+          {% endif %}
+          {% if user['farm_size'] %}
+          <p class="profile-farm"><i class="bi bi-crop me-2 text-muted"></i>{{ user['farm_size'] }}</p>
+          {% endif %}
+          <p class="profile-joined text-muted small mt-2">
+            <i class="bi bi-calendar3 me-1"></i>Joined {{ user['joined_at'][:10] }}
+          </p>
+
+          <div class="row g-3 mt-3">
+            <div class="col-6">
+              <div class="profile-stat-mini bg-success-soft">
+                <div class="profile-stat-val text-success">{{ disease_count }}</div>
+                <div class="profile-stat-label">Scans</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="profile-stat-mini bg-primary-soft">
+                <div class="profile-stat-val text-primary">{{ yield_count }}</div>
+                <div class="profile-stat-label">Predictions</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <a href="{{ url_for('detect') }}" class="btn btn-success btn-sm">
+              <i class="bi bi-search-heart me-1"></i>New Disease Scan
+            </a>
+            <a href="{{ url_for('yield_pred') }}" class="btn btn-primary btn-sm">
+              <i class="bi bi-graph-up-arrow me-1"></i>New Yield Prediction
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">
+              <i class="bi bi-box-arrow-right me-1"></i>Logout
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="col-lg-8">
+        <!-- Recent Disease Scans -->
+        <div class="panel-card mb-4">
+          <div class="panel-header">
+            <i class="bi bi-search-heart panel-icon text-success"></i>
+            <h4 class="panel-title">Recent Disease Detections</h4>
+            <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-success ms-auto">View All</a>
+          </div>
+          {% if recent_disease %}
+          <div class="table-responsive">
+            <table class="table table-smart mb-0">
+              <thead>
+                <tr>
+                  <th>Disease</th>
+                  <th>Confidence</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in recent_disease %}
+                {% set info = {'Bacterial leaf blight':{'color':'danger'},'Blast':{'color':'danger'},'Brown spot':{'color':'warning'},'Healthy':{'color':'success'},'Leaf smut':{'color':'warning'},'Tungro':{'color':'danger'}} %}
+                {% set d = info.get(r['predicted_class'], {'color':'secondary'}) %}
+                <tr>
+                  <td><span class="disease-tag disease-tag-{{ d['color'] }}">{{ r['predicted_class'] }}</span></td>
+                  <td>
+                    <div class="mini-bar-wrap">
+                      <div class="mini-bar bg-{{ d['color'] }}" style="width:{{ r['confidence']|round(0)|int }}%"></div>
+                      <span class="mini-bar-text">{{ "%.1f"|format(r['confidence']) }}%</span>
+                    </div>
+                  </td>
+                  <td class="text-muted small">{{ r['date_time'] }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-inbox display-5 d-block mb-2"></i>No disease scans yet.
+            <a href="{{ url_for('detect') }}" class="btn btn-sm btn-success mt-2">Upload Now</a>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Recent Yield Predictions -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <i class="bi bi-graph-up-arrow panel-icon text-primary"></i>
+            <h4 class="panel-title">Recent Yield Predictions</h4>
+            <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-primary ms-auto">View All</a>
+          </div>
+          {% if recent_yield %}
+          <div class="table-responsive">
+            <table class="table table-smart mb-0">
+              <thead>
+                <tr>
+                  <th>Variety</th>
+                  <th>Region</th>
+                  <th>Season</th>
+                  <th>Yield</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in recent_yield %}
+                <tr>
+                  <td><span class="variety-tag">🌾 {{ r['rice_variety'] }}</span></td>
+                  <td class="text-muted small">{{ r['region'] }}</td>
+                  <td><span class="badge bg-success-soft text-success">{{ r['season'] }}</span></td>
+                  <td>
+                    <span class="yield-tag {% if r['predicted_yield'] >= 6 %}yield-excellent{% elif r['predicted_yield'] >= 4.5 %}yield-good{% elif r['predicted_yield'] >= 3 %}yield-avg{% else %}yield-low{% endif %}">
+                      {{ r['predicted_yield'] }} t/ha
+                    </span>
+                  </td>
+                  <td class="text-muted small">{{ r['date_time'] }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-inbox display-5 d-block mb-2"></i>No yield predictions yet.
+            <a href="{{ url_for('yield_pred') }}" class="btn btn-sm btn-primary mt-2">Predict Now</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

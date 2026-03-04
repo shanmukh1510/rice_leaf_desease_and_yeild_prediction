@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
+
+<section class="page-header page-header-forest">
+  <div class="container-fluid px-4 py-5">
+    <div class="row">
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb breadcrumb-white mb-2">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item active">About</li>
+          </ol>
+        </nav>
+        <h1 class="page-title text-white"><i class="bi bi-info-circle-fill me-2"></i>About SmartRice</h1>
+        <p class="page-subtitle text-white-50">AI-powered agriculture intelligence platform</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container-fluid px-4">
+    <div class="row g-4">
+
+      <!-- Mission -->
+      <div class="col-lg-8">
+        <div class="about-card">
+          <div class="about-section-icon">🎯</div>
+          <h3 class="about-section-title">Our Mission</h3>
+          <p class="about-text">
+            SmartRice is an AI-powered precision agriculture platform designed to empower rice farmers
+            with the power of Deep Learning and Machine Learning. We help farmers detect leaf diseases
+            early and predict crop yields accurately — reducing losses and maximizing productivity.
+          </p>
+          <p class="about-text">
+            Built with TensorFlow/Keras for image classification and Scikit-Learn for yield regression,
+            SmartRice brings enterprise-level AI to every farmer's pocket.
+          </p>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="about-card mt-4">
+          <div class="about-section-icon">🛠️</div>
+          <h3 class="about-section-title">Technology Stack</h3>
+          <div class="tech-grid">
+            <div class="tech-item">
+              <span class="tech-icon">🐍</span>
+              <div class="tech-name">Python 3.10+</div>
+              <div class="tech-role">Core Language</div>
+            </div>
+            <div class="tech-item">
+              <span class="tech-icon">🧠</span>
+              <div class="tech-name">TensorFlow 2.16</div>
+              <div class="tech-role">Deep Learning</div>
+            </div>
+            <div class="tech-item">
+              <span class="tech-icon">🌲</span>
+              <div class="tech-name">Scikit-Learn 1.4</div>
+              <div class="tech-role">Machine Learning</div>
+            </div>
+            <div class="tech-item">
+              <span class="tech-icon">⚗️</span>
+              <div class="tech-name">Flask 3.0</div>
+              <div class="tech-role">Web Framework</div>
+            </div>
+            <div class="tech-item">
+              <span class="tech-icon">🗄️</span>
+              <div class="tech-name">SQLite</div>
+              <div class="tech-role">Database</div>
+            </div>
+            <div class="tech-item">
+              <span class="tech-icon">📊</span>
+              <div class="tech-name">Chart.js 4</div>
+              <div class="tech-role">Visualizations</div>
+            </div>
+            <div class="tech-item">
+              <span class="tech-icon">🎨</span>
+              <div class="tech-name">Bootstrap 5.3</div>
+              <div class="tech-role">UI Framework</div>
+            </div>
+            <div class="tech-item">
+              <span class="tech-icon">🐼</span>
+              <div class="tech-name">Pandas 2.2</div>
+              <div class="tech-role">Data Processing</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Info -->
+      <div class="col-lg-4">
+        <!-- Disease Info -->
+        <div class="about-sidebar-card mb-4">
+          <h5 class="sidebar-title"><i class="bi bi-bug-fill me-2 text-danger"></i>Detectable Diseases</h5>
+          <div class="disease-list-about">
+            <div class="disease-about-item danger">
+              <span>🦠</span> Bacterial Leaf Blight
+              <span class="badge bg-danger ms-auto">High Risk</span>
+            </div>
+            <div class="disease-about-item danger">
+              <span>💥</span> Blast
+              <span class="badge bg-danger ms-auto">Very High</span>
+            </div>
+            <div class="disease-about-item warning">
+              <span>🟤</span> Brown Spot
+              <span class="badge bg-warning text-dark ms-auto">Medium</span>
+            </div>
+            <div class="disease-about-item warning">
+              <span>⬛</span> Leaf Smut
+              <span class="badge bg-warning text-dark ms-auto">Medium</span>
+            </div>
+            <div class="disease-about-item danger">
+              <span>🟡</span> Tungro
+              <span class="badge bg-danger ms-auto">Very High</span>
+            </div>
+            <div class="disease-about-item success">
+              <span>✅</span> Healthy
+              <span class="badge bg-success ms-auto">None</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Model Info -->
+        <div class="about-sidebar-card mb-4">
+          <h5 class="sidebar-title"><i class="bi bi-cpu-fill me-2 text-primary"></i>Model Details</h5>
+          <div class="model-info-list">
+            <div class="model-info-item">
+              <span class="model-key">Architecture</span>
+              <span class="model-val">CNN (ResNet/VGG)</span>
+            </div>
+            <div class="model-info-item">
+              <span class="model-key">Input Size</span>
+              <span class="model-val">224×224×3</span>
+            </div>
+            <div class="model-info-item">
+              <span class="model-key">Normalization</span>
+              <span class="model-val">÷255</span>
+            </div>
+            <div class="model-info-item">
+              <span class="model-key">Classes</span>
+              <span class="model-val">6 Disease Types</span>
+            </div>
+            <div class="model-info-item">
+              <span class="model-key">ML Model</span>
+              <span class="model-val">Random Forest</span>
+            </div>
+            <div class="model-info-item">
+              <span class="model-key">Training Data</span>
+              <span class="model-val">12,000+ samples</span>
+            </div>
+            <div class="model-info-item">
+              <span class="model-key">Estimators</span>
+              <span class="model-val">300 trees</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="about-sidebar-card">
+          <h5 class="sidebar-title"><i class="bi bi-lightning-fill me-2 text-warning"></i>Quick Actions</h5>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('detect') }}" class="btn btn-success">
+              <i class="bi bi-search-heart me-2"></i>Detect Disease
+            </a>
+            <a href="{{ url_for('yield_pred') }}" class="btn btn-primary">
+              <i class="bi bi-graph-up-arrow me-2"></i>Predict Yield
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-dark">
+              <i class="bi bi-bar-chart-fill me-2"></i>View Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

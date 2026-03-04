@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}Disease Detection{% endblock %}
+{% block content %}
+
+<section class="page-header">
+  <div class="container-fluid px-4 py-5">
+    <div class="row align-items-center">
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb breadcrumb-white mb-2">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item active">Disease Detection</li>
+          </ol>
+        </nav>
+        <h1 class="page-title text-white"><i class="bi bi-search-heart me-2"></i>Rice Disease Detection</h1>
+        <p class="page-subtitle text-white-50">Upload a rice leaf image for instant AI-powered disease diagnosis</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container-fluid px-4">
+    <div class="row g-4">
+
+      <!-- Upload Panel -->
+      <div class="col-lg-5">
+        <div class="panel-card">
+          <div class="panel-header">
+            <i class="bi bi-cloud-upload-fill panel-icon"></i>
+            <h4 class="panel-title">Upload Leaf Image</h4>
+          </div>
+          <form method="POST" enctype="multipart/form-data" id="detectForm">
+            <!-- Drag & Drop Zone -->
+            <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+              <div class="dropzone-inner" id="dropzoneInner">
+                <div class="dropzone-icon">📷</div>
+                <p class="dropzone-text">Drag & drop image here</p>
+                <p class="dropzone-sub">or click to browse</p>
+                <span class="dropzone-formats">PNG, JPG, JPEG, BMP, WEBP • Max 10MB</span>
+              </div>
+              <img id="previewImg" class="dropzone-preview d-none" alt="Preview"/>
+            </div>
+            <input type="file" id="fileInput" name="file" accept=".png,.jpg,.jpeg,.bmp,.webp" class="d-none" required/>
+
+            {% if error %}
+            <div class="alert alert-danger mt-3 d-flex align-items-center gap-2">
+              <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-detect w-100 mt-3" id="analyzeBtn">
+              <i class="bi bi-cpu-fill me-2"></i>Analyze with AI
+            </button>
+          </form>
+
+          <!-- Tips Card -->
+          <div class="tips-card mt-4">
+            <h6 class="tips-title"><i class="bi bi-lightbulb-fill me-2 text-warning"></i>Tips for Best Results</h6>
+            <ul class="tips-list">
+              <li>Use clear, well-lit photos of rice leaves</li>
+              <li>Focus on affected leaf areas showing symptoms</li>
+              <li>Avoid blurry or dark images</li>
+              <li>Single leaf per image works best</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="col-lg-7">
+        {% if result %}
+        <div class="results-panel animate-fade-in">
+          <!-- Disease Header -->
+          <div class="result-header result-{{ result.treatment.color }}">
+            <div class="d-flex align-items-center gap-3">
+              <span class="result-emoji">{{ result.treatment.icon }}</span>
+              <div>
+                <div class="result-label">Detected Disease</div>
+                <div class="result-disease">{{ result.disease }}</div>
+              </div>
+            </div>
+            <div class="text-end">
+              <div class="result-label">Confidence</div>
+              <div class="result-confidence">{{ result.confidence }}%</div>
+            </div>
+          </div>
+
+          <!-- Confidence Bar -->
+          <div class="p-4 border-bottom">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="fw-600">Prediction Confidence</span>
+              <span class="conf-percent">{{ result.confidence }}%</span>
+            </div>
+            <div class="confidence-bar">
+              <div class="confidence-fill bg-{{ result.treatment.color }}"
+                   style="width: {{ result.confidence }}%"
+                   data-width="{{ result.confidence }}"></div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+              <small class="text-muted">Severity: <strong class="text-{{ result.treatment.color }}">{{ result.treatment.severity }}</strong></small>
+              <small class="text-muted">{{ result.disease }}</small>
+            </div>
+          </div>
+
+          <!-- Uploaded Image + Description -->
+          <div class="p-4 border-bottom">
+            <div class="row g-3 align-items-start">
+              <div class="col-md-4">
+                <img src="{{ url_for('static', filename=result.image_path) }}" class="result-image" alt="Uploaded leaf"/>
+              </div>
+              <div class="col-md-8">
+                <h6 class="fw-700 mb-2">About This Disease</h6>
+                <p class="text-muted mb-0">{{ result.treatment.description }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Treatment Recommendations -->
+          <div class="p-4 border-bottom">
+            <h6 class="fw-700 mb-3"><i class="bi bi-capsule me-2 text-success"></i>Treatment Recommendations</h6>
+            <div class="treatment-list">
+              {% for t in result.treatment.treatment %}
+              <div class="treatment-item">
+                <span class="treatment-dot bg-{{ result.treatment.color }}"></span>
+                <span>{{ t }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Prevention -->
+          <div class="p-4">
+            <h6 class="fw-700 mb-2"><i class="bi bi-shield-check me-2 text-primary"></i>Prevention</h6>
+            <p class="text-muted mb-3">{{ result.treatment.prevention }}</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <a href="{{ url_for('detect') }}" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-arrow-repeat me-1"></i>Detect Another
+              </a>
+              <a href="{{ url_for('history') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-clock-history me-1"></i>View History
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state-card">
+          <div class="empty-state-icon">🌿</div>
+          <h4 class="empty-state-title">Ready to Diagnose</h4>
+          <p class="empty-state-sub">Upload a rice leaf image and our AI will instantly detect any disease and provide detailed treatment advice.</p>
+          <div class="disease-showcase">
+            {% for cls, info in [('Bacterial leaf blight', {'icon':'🦠','color':'danger'}), ('Blast', {'icon':'💥','color':'danger'}), ('Brown spot', {'icon':'🟤','color':'warning'}), ('Healthy', {'icon':'✅','color':'success'}), ('Leaf smut', {'icon':'⬛','color':'warning'}), ('Tungro', {'icon':'🟡','color':'danger'})] %}
+            <div class="showcase-item border-{{ info.color }}">
+              <span class="showcase-emoji">{{ info.icon }}</span>
+              <span class="showcase-name">{{ cls }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const previewImg = document.getElementById('previewImg');
+const dropzoneInner = document.getElementById('dropzoneInner');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const detectForm = document.getElementById('detectForm');
+
+fileInput.addEventListener('change', (e) => showPreview(e.target.files[0]));
+
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault(); dropzone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) { fileInput.files = e.dataTransfer.files; showPreview(file); }
+});
+
+function showPreview(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    previewImg.src = e.target.result;
+    previewImg.classList.remove('d-none');
+    dropzoneInner.classList.add('d-none');
+    dropzone.classList.add('has-preview');
+  };
+  reader.readAsDataURL(file);
+}
+
+detectForm.addEventListener('submit', () => {
+  analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
+  analyzeBtn.disabled = true;
+});
+
+// Animate confidence bar
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.confidence-fill').forEach(el => {
+    const w = el.dataset.width;
+    el.style.width = '0%';
+    setTimeout(() => { el.style.width = w + '%'; }, 300);
+  });
+});
+</script>
+{% endblock %}

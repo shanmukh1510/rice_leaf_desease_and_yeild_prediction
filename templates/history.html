@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block content %}
+
+<section class="page-header page-header-teal">
+  <div class="container-fluid px-4 py-5">
+    <div class="row align-items-center">
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb breadcrumb-white mb-2">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item active">History</li>
+          </ol>
+        </nav>
+        <h1 class="page-title text-white"><i class="bi bi-clock-history me-2"></i>Prediction History</h1>
+        <p class="page-subtitle text-white-50">All past disease detections and yield predictions</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container-fluid px-4">
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs-custom mb-4" id="historyTabs">
+      <li class="nav-item">
+        <button class="nav-tab-btn active" data-tab="disease">
+          <i class="bi bi-search-heart me-2"></i>Disease Detections
+          <span class="tab-count">{{ disease_records|length }}</span>
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-tab-btn" data-tab="yield">
+          <i class="bi bi-graph-up-arrow me-2"></i>Yield Predictions
+          <span class="tab-count tab-count-blue">{{ yield_records|length }}</span>
+        </button>
+      </li>
+    </ul>
+
+    <!-- Disease Table -->
+    <div id="tab-disease" class="tab-content-custom">
+      {% if disease_records %}
+      <div class="table-card">
+        <div class="table-card-header">
+          <h5 class="mb-0"><i class="bi bi-table me-2"></i>Disease Detection Records</h5>
+          <input type="text" class="table-search" id="diseaseSearch" placeholder="🔍 Search records...">
+        </div>
+        <div class="table-responsive">
+          <table class="table table-smart" id="diseaseTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Detected Disease</th>
+                <th>Confidence</th>
+                <th>Severity</th>
+                <th>Date & Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in disease_records %}
+              {% set info = {
+                'Bacterial leaf blight': {'color':'danger','icon':'🦠'},
+                'Blast': {'color':'danger','icon':'💥'},
+                'Brown spot': {'color':'warning','icon':'🟤'},
+                'Healthy': {'color':'success','icon':'✅'},
+                'Leaf smut': {'color':'warning','icon':'⬛'},
+                'Tungro': {'color':'danger','icon':'🟡'}
+              } %}
+              {% set d = info.get(r['predicted_class'], {'color':'secondary','icon':'❓'}) %}
+              <tr>
+                <td class="text-muted small">{{ r['id'] }}</td>
+                <td>
+                  <div class="thumb-wrap">
+                    <img src="{{ url_for('static', filename='uploads/' + r['image_name']) }}"
+                         class="thumb-img" alt="leaf"
+                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 50%22><text y=%2240%22 font-size=%2240%22>🌿</text></svg>'"/>
+                  </div>
+                </td>
+                <td>
+                  <span class="disease-tag disease-tag-{{ d['color'] }}">
+                    {{ d['icon'] }} {{ r['predicted_class'] }}
+                  </span>
+                </td>
+                <td>
+                  <div class="mini-bar-wrap">
+                    <div class="mini-bar bg-{{ d['color'] }}" style="width:{{ r['confidence']|round(0)|int }}%"></div>
+                    <span class="mini-bar-text">{{ "%.1f"|format(r['confidence']) }}%</span>
+                  </div>
+                </td>
+                <td>
+                  {% if r['predicted_class'] == 'Healthy' %}
+                    <span class="badge bg-success-soft text-success">None</span>
+                  {% elif d['color'] == 'danger' %}
+                    <span class="badge bg-danger-soft text-danger">High</span>
+                  {% else %}
+                    <span class="badge bg-warning-soft text-warning">Medium</span>
+                  {% endif %}
+                </td>
+                <td class="text-muted small">{{ r['date_time'] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-history">
+        <div class="empty-icon">🌿</div>
+        <h5>No disease detections yet</h5>
+        <p class="text-muted">Upload rice leaf images to get started</p>
+        <a href="{{ url_for('detect') }}" class="btn btn-success">
+          <i class="bi bi-upload me-2"></i>Upload Now
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Yield Table -->
+    <div id="tab-yield" class="tab-content-custom d-none">
+      {% if yield_records %}
+      <div class="table-card">
+        <div class="table-card-header">
+          <h5 class="mb-0"><i class="bi bi-table me-2"></i>Yield Prediction Records</h5>
+          <input type="text" class="table-search" id="yieldSearch" placeholder="🔍 Search records...">
+        </div>
+        <div class="table-responsive">
+          <table class="table table-smart" id="yieldTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Variety</th>
+                <th>Region</th>
+                <th>Season</th>
+                <th>Irrigation</th>
+                <th>Rainfall</th>
+                <th>Predicted Yield</th>
+                <th>Date & Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in yield_records %}
+              <tr>
+                <td class="text-muted small">{{ r['id'] }}</td>
+                <td><span class="variety-tag">🌾 {{ r['rice_variety'] }}</span></td>
+                <td class="text-muted">📍 {{ r['region'] }}</td>
+                <td>
+                  {% if r['season'] == 'Kharif' %}
+                    <span class="badge bg-success-soft text-success">Kharif</span>
+                  {% elif r['season'] == 'Rabi' %}
+                    <span class="badge bg-primary-soft text-primary">Rabi</span>
+                  {% else %}
+                    <span class="badge bg-warning-soft text-warning">Summer</span>
+                  {% endif %}
+                </td>
+                <td class="text-muted">💧 {{ r['irrigation_type'] }}</td>
+                <td class="text-muted">🌧️ {{ r['rainfall_mm'] }} mm</td>
+                <td>
+                  <span class="yield-tag {% if r['predicted_yield'] >= 6 %}yield-excellent{% elif r['predicted_yield'] >= 4.5 %}yield-good{% elif r['predicted_yield'] >= 3 %}yield-avg{% else %}yield-low{% endif %}">
+                    {{ r['predicted_yield'] }} t/ha
+                  </span>
+                </td>
+                <td class="text-muted small">{{ r['date_time'] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-history">
+        <div class="empty-icon">📊</div>
+        <h5>No yield predictions yet</h5>
+        <p class="text-muted">Enter parameters to predict rice yield</p>
+        <a href="{{ url_for('yield_pred') }}" class="btn btn-primary">
+          <i class="bi bi-calculator me-2"></i>Predict Now
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Tab switching
+document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content-custom').forEach(t => t.classList.add('d-none'));
+    this.classList.add('active');
+    document.getElementById('tab-' + this.dataset.tab).classList.remove('d-none');
+  });
+});
+
+// Table search
+function setupSearch(inputId, tableId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.addEventListener('input', function() {
+    const val = this.value.toLowerCase();
+    document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(val) ? '' : 'none';
+    });
+  });
+}
+setupSearch('diseaseSearch', 'diseaseTable');
+setupSearch('yieldSearch', 'yieldTable');
+</script>
+{% endblock %}
