@@ -29,7 +29,9 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
-app = Flask(__name__)
+app = Flask(__name__, 
+            template_folder=os.path.join(BASE_DIR, "templates"),
+            static_folder=os.path.join(BASE_DIR, "static"))
 app.config["SECRET_KEY"] = "smartrice_secure_key_2024_xyz"
 app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
@@ -509,11 +511,6 @@ def api_stats():
     conn.close()
     return jsonify({"disease_distribution": dd, "yield_history": [{"yield": r[0], "date": r[1]} for r in yd]})
 
-
-@app.errorhandler(500)
-def internal_error(error):
-    import traceback
-    return f"Internal Server Error: {error}<br><pre>{traceback.format_exc()}</pre>", 500
 
 
 if __name__ == "__main__":
