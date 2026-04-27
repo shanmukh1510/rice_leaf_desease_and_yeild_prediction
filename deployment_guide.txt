@@ -1,0 +1,88 @@
+================================================================================
+                    SMARTRICE - DEPLOYMENT GUIDE (STEP-BY-STEP)
+================================================================================
+
+This guide provides detailed instructions on how to deploy the SmartRice AI
+Powered Rice Disease Detection & Yield Prediction System.
+
+--------------------------------------------------------------------------------
+STEP 1: PREPARE YOUR PROJECT FILES
+--------------------------------------------------------------------------------
+Ensure the following directory structure exists:
+- app.py (Main application file)
+- requirements.txt (Dependencies list)
+- models/ (Directory containing your .h5 and .pkl models)
+    - rice_leaf_disease_model.h5
+    - rice_yield_model.pkl
+    - scaler.pkl
+    - feature_columns.pkl
+- static/ (CSS, JS, and image uploads)
+- templates/ (HTML files)
+- database.db (Will be created automatically if not present)
+
+--------------------------------------------------------------------------------
+STEP 2: SET UP THE ENVIRONMENT (SERVER)
+--------------------------------------------------------------------------------
+On your server (Linux or Windows):
+
+1. Install Python 3.10+ if not already installed.
+2. Open a terminal/command prompt in the project folder.
+3. Create a virtual environment:
+   python -m venv venv
+4. Activate the virtual environment:
+   - Windows: venv\Scripts\activate
+   - Linux/macOS: source venv/bin/activate
+5. Install the required dependencies:
+   pip install -r requirements.txt
+
+--------------------------------------------------------------------------------
+STEP 3: INITIALIZE THE DATABASE
+--------------------------------------------------------------------------------
+The application is designed to initialize the SQLite database automatically.
+Running the app once will create 'database.db' with the necessary tables.
+
+--------------------------------------------------------------------------------
+STEP 4: PRODUCTION RUN (GUNICORN / WAITRESS)
+--------------------------------------------------------------------------------
+Never use 'flask run' or 'python app.py' in a production environment.
+
+Option A: Linux (using Gunicorn)
+Run the following command:
+gunicorn --bind 0.0.0.0:5000 app:app
+
+Option B: Windows (using Waitress)
+1. Install Waitress: pip install waitress
+2. Run using: waitress-serve --port=5000 app:app
+
+--------------------------------------------------------------------------------
+STEP 5: CLOUD DEPLOYMENT (RENDER.COM EXAMPLE)
+--------------------------------------------------------------------------------
+Render is a popular free-tier friendly platform for Flask apps.
+
+1. Create a GitHub repository and push your project code there.
+2. Log in to Render.com and click 'New' -> 'Web Service'.
+3. Connect your GitHub repository.
+4. Configure the settings:
+   - Name: smart-rice-ai
+   - Environment: Python
+   - Build Command: pip install -r requirements.txt
+   - Start Command: gunicorn app:app
+5. Environment Variables:
+   - If you have any secrets, add them in the 'Env Vars' section.
+6. Click 'Create Web Service'.
+
+--------------------------------------------------------------------------------
+STEP 6: TROUBLESHOOTING
+--------------------------------------------------------------------------------
+- Model Not Found: Ensure the 'models/' folder is included in your deployment.
+- Memory Issues: Deep learning models (TensorFlow) require significant RAM. 
+  Render's Free Tier has a 512MB limit. If the app crashes with 'Out of Memory',
+  you may need to upgrade to a 'Starter' plan (2GB RAM) or optimize the models.
+  The project currently loads both a CNN and a Random Forest model.
+- Permission Errors: Ensure the 'static/uploads' folder is writable by the app.
+- Unicode Errors: If running on Windows, ensure your console supports UTF-8 
+  or check for 'UnicodeEncodeError' fixes in the logs.
+
+--------------------------------------------------------------------------------
+Developed by SmartRice AI Team
+================================================================================

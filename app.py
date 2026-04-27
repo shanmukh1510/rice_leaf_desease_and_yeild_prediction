@@ -2,6 +2,9 @@
 SmartRice – AI Powered Rice Disease Detection & Yield Prediction System
 With Full Authentication: Login, Signup, Profile, Session Management
 """
+import sys, io
+if hasattr(sys.stdout, 'buffer'):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 import os
 import uuid
@@ -202,19 +205,20 @@ def load_models():
         for path in ["models/rice_leaf_disease_model.h5", "models/rice_leaf_disease_cnn_model.h5"]:
             if os.path.exists(path):
                 dl_model = tf.keras.models.load_model(path)
-                print(f"[✓] DL Model: {path}")
+                print(f"[OK] DL Model: {path}")
+                print("Model input shape:", dl_model.input_shape)
                 break
         else:
             print("[!] No DL model in models/")
     except Exception as e:
-        print(f"[✗] DL error: {e}")
+        print(f"[ERR] DL error: {e}")
     try:
         yield_model     = joblib.load("models/rice_yield_model.pkl")
         scaler          = joblib.load("models/scaler.pkl")
         feature_columns = joblib.load("models/feature_columns.pkl")
-        print("[✓] ML Models loaded")
+        print("[OK] ML Models loaded")
     except Exception as e:
-        print(f"[✗] ML error: {e}")
+        print(f"[ERR] ML error: {e}")
 
 
 load_models()
@@ -499,4 +503,5 @@ def api_stats():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)
