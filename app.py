@@ -513,6 +513,12 @@ def api_stats():
 
 
 
+@app.errorhandler(500)
+def internal_error(error):
+    import traceback
+    return f"Internal Server Error: {error}<br><pre>{traceback.format_exc()}</pre>", 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
