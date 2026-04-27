@@ -285,6 +285,17 @@ def signup():
         if len(password) < 6:     errors.append("Password must be at least 6 characters.")
         if password != confirm:   errors.append("Passwords do not match.")
 
+        # Validate
+        conn = get_db()
+        existing = conn.execute(
+            "SELECT * FROM users WHERE LOWER(email)=LOWER(?) OR LOWER(username)=LOWER(?)",
+            (email, username)
+        ).fetchone()
+        conn.close()
+        
+        if existing:
+            errors.append("Email or username already registered.")
+        
         if not errors:
             try:
                 conn = get_db()
@@ -315,13 +326,14 @@ def login():
         return redirect(url_for("index"))
 
     if request.method == "POST":
-        identifier = request.form.get("identifier", "").strip().lower()
+        identifier = request.form.get("identifier", "").strip()
         password   = request.form.get("password", "")
         remember   = request.form.get("remember")
 
         conn = get_db()
         user = conn.execute(
-            "SELECT * FROM users WHERE email=? OR username=?", (identifier, identifier)
+            "SELECT * FROM users WHERE LOWER(email)=LOWER(?) OR LOWER(username)=LOWER(?)", 
+            (identifier, identifier)
         ).fetchone()
         conn.close()
 
