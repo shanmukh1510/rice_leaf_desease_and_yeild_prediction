@@ -25,9 +25,13 @@ warnings.filterwarnings("ignore")
 
 # ─── App Configuration ────────────────────────────────────────────────────────
 
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DB_PATH = os.path.join(BASE_DIR, "database.db")
+MODEL_DIR = os.path.join(BASE_DIR, "models")
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "smartrice_secure_key_2024_xyz"
-app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploads")
+app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "bmp", "webp"}
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
@@ -117,7 +121,7 @@ TREATMENTS = {
 # ─── Database ─────────────────────────────────────────────────────────────────
 
 def init_db():
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
         CREATE TABLE IF NOT EXISTS users (
@@ -160,7 +164,7 @@ init_db()
 
 
 def get_db():
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -202,21 +206,25 @@ def load_models():
     global dl_model, yield_model, scaler, feature_columns
     try:
         import tensorflow as tf
-        for path in ["models/rice_leaf_disease_model.h5", "models/rice_leaf_disease_cnn_model.h5"]:
+        for name in ["rice_leaf_disease_model.h5", "rice_leaf_disease_cnn_model.h5"]:
+            path = os.path.join(MODEL_DIR, name)
             if os.path.exists(path):
                 dl_model = tf.keras.models.load_model(path)
-                print(f"[OK] DL Model: {path}")
-                print("Model input shape:", dl_model.input_shape)
+                print(f"[OK] DL Model Loaded: {path}")
                 break
         else:
-            print("[!] No DL model in models/")
+            print(f"[!] No DL model found in {MODEL_DIR}")
     except Exception as e:
         print(f"[ERR] DL error: {e}")
     try:
-        yield_model     = joblib.load("models/rice_yield_model.pkl")
-        scaler          = joblib.load("models/scaler.pkl")
-        feature_columns = joblib.load("models/feature_columns.pkl")
-        print("[OK] ML Models loaded")
+        rf_path = os.path.join(MODEL_DIR, "rice_yield_model.pkl")
+        sc_path = os.path.join(MODEL_DIR, "scaler.pkl")
+        col_path = os.path.join(MODEL_DIR, "feature_columns.pkl")
+        
+        yield_model     = joblib.load(rf_path)
+        scaler          = joblib.load(sc_path)
+        feature_columns = joblib.load(col_path)
+        print("[OK] ML Models loaded successfully")
     except Exception as e:
         print(f"[ERR] ML error: {e}")
 
@@ -500,6 +508,12 @@ def api_stats():
     yd = conn.execute("SELECT predicted_yield, date_time FROM yield_predictions ORDER BY id DESC LIMIT 20").fetchall()
     conn.close()
     return jsonify({"disease_distribution": dd, "yield_history": [{"yield": r[0], "date": r[1]} for r in yd]})
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    import traceback
+    return f"Internal Server Error: {error}<br><pre>{traceback.format_exc()}</pre>", 500
 
 
 if __name__ == "__main__":
