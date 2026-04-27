@@ -267,7 +267,10 @@ def predict_yield(data):
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if "user_id" in session:
-        return redirect(url_for("index"))
+        if get_current_user():
+            return redirect(url_for("index"))
+        else:
+            session.clear()
 
     if request.method == "POST":
         full_name = request.form.get("full_name", "").strip()
@@ -323,7 +326,10 @@ def signup():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if "user_id" in session:
-        return redirect(url_for("index"))
+        if get_current_user():
+            return redirect(url_for("index"))
+        else:
+            session.clear()
 
     if request.method == "POST":
         identifier = request.form.get("identifier", "").strip()

@@ -20,12 +20,21 @@
           Empowering farmers with cutting-edge AI technology.
         </p>
         <div class="d-flex flex-wrap gap-3 animate-fade-up delay-3">
+          {% if current_user %}
           <a href="{{ url_for('detect') }}" class="btn btn-hero-primary">
             <i class="bi bi-search-heart me-2"></i>Detect Disease
           </a>
           <a href="{{ url_for('yield_pred') }}" class="btn btn-hero-secondary">
             <i class="bi bi-graph-up-arrow me-2"></i>Predict Yield
           </a>
+          {% else %}
+          <a href="{{ url_for('signup') }}" class="btn btn-hero-primary">
+            <i class="bi bi-person-plus-fill me-2"></i>Get Started Free
+          </a>
+          <a href="{{ url_for('about') }}" class="btn btn-hero-secondary">
+            <i class="bi bi-info-circle-fill me-2"></i>Learn More
+          </a>
+          {% endif %}
         </div>
         <!-- Model Status Badges -->
         <div class="d-flex flex-wrap gap-3 mt-4 animate-fade-up delay-4">
@@ -129,9 +138,15 @@
             <span class="disease-chip chip-danger">🟡 Tungro</span>
             <span class="disease-chip chip-success">✅ Healthy</span>
           </div>
+          {% if current_user %}
           <a href="{{ url_for('detect') }}" class="btn btn-feature-primary">
             <i class="bi bi-upload me-2"></i>Upload Leaf Image
           </a>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-feature-primary">
+            <i class="bi bi-lock-fill me-2"></i>Login to Use
+          </a>
+          {% endif %}
         </div>
       </div>
       <!-- Yield Prediction Card -->
@@ -158,9 +173,15 @@
             <div class="param-item"><i class="bi bi-bag-fill"></i> Fertilizer</div>
             <div class="param-item"><i class="bi bi-calendar3"></i> Season</div>
           </div>
+          {% if current_user %}
           <a href="{{ url_for('yield_pred') }}" class="btn btn-feature-secondary">
             <i class="bi bi-calculator me-2"></i>Predict Yield Now
           </a>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-feature-secondary">
+            <i class="bi bi-lock-fill me-2"></i>Login to Use
+          </a>
+          {% endif %}
         </div>
       </div>
     </div>

@@ -161,9 +161,14 @@
       </div>
       <div class="col-md-4 text-center mb-3 mb-md-0">
         <div class="d-flex justify-content-center gap-4">
+          {% if current_user %}
           <a href="{{ url_for('detect') }}" class="footer-link"><i class="bi bi-search-heart"></i> Detect</a>
           <a href="{{ url_for('yield_pred') }}" class="footer-link"><i class="bi bi-graph-up-arrow"></i> Predict</a>
           <a href="{{ url_for('dashboard') }}" class="footer-link"><i class="bi bi-bar-chart-fill"></i> Dashboard</a>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="footer-link"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+          <a href="{{ url_for('signup') }}" class="footer-link"><i class="bi bi-person-plus"></i> Sign Up</a>
+          {% endif %}
         </div>
       </div>
     </div>
