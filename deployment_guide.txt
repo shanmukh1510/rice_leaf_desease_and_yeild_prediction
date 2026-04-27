@@ -65,7 +65,7 @@ Render is a popular free-tier friendly platform for Flask apps.
 4. Configure the settings:
    - Name: smart-rice-ai
    - Environment: Python
-   - Build Command: pip install -r requirements.txt
+   - Build Command: python -m pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
    - Start Command: gunicorn app:app
 5. Environment Variables:
    - If you have any secrets, add them in the 'Env Vars' section.
